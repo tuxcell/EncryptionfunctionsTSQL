@@ -1,0 +1,52 @@
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS OFF 
+GO
+
+CREATE function CRYPTX8( @s VARCHAR(1024), @k VARCHAR(8) ) 
+--Returns a string s1 encrypted/decrypted with key s2, up to 8 chars ( XOR encryption ). 
+returns VARCHAR(1024)
+as
+BEGIN
+DECLARE @result VARCHAR(1024), @l int, @i int, @j int, @temp tinyint, @x tinyint
+SET @i=LEN(@k)
+IF @i<8--if the pwd<8 char
+	BEGIN
+	SET @k=@k+@k+@k+@k+@k+@k+@k+@k--add pwd to itself
+	SET @k=LEFT(@k,8)
+	END
+SET @l=(LEN(@s) % 8)
+IF @l<>0--if there are no complete 64 bit blocks
+	BEGIN
+	SET @i=(LEN(@s))/8+1
+	SET @l= @i*8-len(@s)
+	SET @s=@s+replicate('*',@l)
+	END
+SET @i=1
+SET @result=''
+WHILE @i<=LEN(@s)
+	BEGIN
+	SET @j=0
+	WHILE @j<8
+		BEGIN	
+		SET @temp=ASCII(SUBSTRING(@s,@i+@j,1))
+		SET @x=ASCII(SUBSTRING(@k,@j+1,1))
+		SET @result=@result + CHAR(@temp ^ @x)	
+		SET @j=@j+1
+		END
+	SET @i=@i+8
+	END
+IF @l<>0
+	BEGIN	
+	SET @result=LEFT(@result,LEN(@result)-@l)
+	END
+RETURN    @result
+END
+
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+

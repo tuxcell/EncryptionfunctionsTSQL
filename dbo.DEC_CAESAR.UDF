@@ -1,0 +1,33 @@
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS OFF 
+GO
+
+CREATE function DEC_CAESAR( @s VARCHAR(255), @x tinyint ) 
+returns VARCHAR(255)
+as
+BEGIN
+--Returns a string decrypted with key x ( Caesar Cipher encryption )
+DECLARE @result VARCHAR(255), @i int, @j int, @temp tinyint
+SET @i=1
+SET @result=''
+WHILE @i<=LEN(@s)
+	BEGIN
+	SET @temp=ASCII(SUBSTRING(@s,@i,1))
+	SET @j=CONVERT(int,@temp)-@x
+	IF @j<0
+		SET @j=@j+255
+	SET @result=@result + CHAR(@j)
+	SET @i=@i+1
+	END
+RETURN @result
+END
+
+
+
+GO
+SET QUOTED_IDENTIFIER OFF 
+GO
+SET ANSI_NULLS ON 
+GO
+
